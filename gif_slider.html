@@ -17,8 +17,6 @@
 function show_gif() {
     gif=gifs[Math.floor(Math.random()*gifs.length)]
 
-    $("#gif_url").text(gif)
-
     show_html = ""
     if (/mp4$/.test(gif) || /webm$/.test(gif)) {
       show_html =
