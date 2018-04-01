@@ -1,0 +1,54 @@
+<head>
+<title>GIF Punch</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+
+<h1 id="gif_url"></h1>
+
+<div id="gif">
+</div>
+
+<script>
+
+function show_gif() {
+    gif=gifs[Math.floor(Math.random()*gifs.length)]
+
+    $("#gif_url").text(gif)
+
+    show_html = ""
+    if (/mp4$/.test(gif) || /webm$/.test(gif)) {
+      show_html =
+          "<video preload=\"auto\" autoplay=\"autoplay\" loop=\"loop\"> \
+          <source src=\"" + gif + "\" type=\"video/webm\"> \
+          </video>"
+    }
+    else if (/gifv$/.test(gif)) {
+      gif_mp4 = gif.substring(0, gif.length - 4) + "mp4"
+
+      show_html =
+          "<video preload=\"auto\" autoplay=\"autoplay\" loop=\"loop\"> \
+          <source src=\"" + gif_mp4 + "\" type=\"video/webm\"> \
+          </video>"
+    }
+    else if (/gif$/.test(gif)) {
+      show_html =
+          "<img src=\"" + gif + "\">"
+    }
+        
+    $("#gif").html(show_html)
+}
+
+var gifs=[]
+jQuery.get('https://s3.amazonaws.com/gsh-gifs/reddit_gifs.txt', 
+    function(data) {
+        gifs = (String(data)).split('\n');
+        show_gif()
+    });
+
+setInterval(show_gif, 20000)
+
+</script>
+
+</body>
