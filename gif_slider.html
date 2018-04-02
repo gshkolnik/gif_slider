@@ -1,15 +1,26 @@
 <head>
 <title>GIF Punch</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<style>
+html,body{
+    margin:0;
+    height:100%;
+    overflow:hidden;
+}
+
+img,video {
+    display:block;
+    width:auto;
+    height:100%;
+    object-fit: cover;
+    margin:auto;
+}
+</style>
 </head>
 
 <body>
-
-
-<div id="container" 
-        style="height: 100%; display: flex; align-items: center; justify-content: center;">
-    <div id="gif">
-    </div>
+<div id="gif">
 </div>
 
 <script>
@@ -36,19 +47,18 @@ function show_gif() {
       show_html =
           "<img src=\"" + gif + "\">"
     }
-        
+
     $("#gif").html(show_html)
 }
 
 var gifs=[]
-jQuery.get('https://s3.amazonaws.com/gsh-gifs/reddit_gifs.txt', 
+jQuery.get('https://s3.amazonaws.com/gsh-gifs/reddit_gifs.txt',
     function(data) {
         gifs = (String(data)).split('\n');
         show_gif()
     });
 
-setInterval(show_gif, 20000)
+setInterval(show_gif, 10000)
 
 </script>
-
 </body>
