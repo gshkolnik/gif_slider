@@ -25,39 +25,44 @@ img,video {
 
 <script>
 
+function image_load_error(gif) {
+  console.log("Failed to load: " + gif)
+  show_gif()
+}
+
 function show_gif() {
-    gif=gifs[Math.floor(Math.random()*gifs.length)]
+  gif=gifs[Math.floor(Math.random() * (gifs.length - 1))]
 
-    show_html = ""
-    if (/mp4$/.test(gif) || /webm$/.test(gif)) {
-      show_html =
-          "<video preload=\"auto\" autoplay=\"autoplay\" loop=\"loop\"> \
-          <source src=\"" + gif + "\" type=\"video/webm\"> \
-          </video>"
-    }
-    else if (/gifv$/.test(gif)) {
-      gif_mp4 = gif.substring(0, gif.length - 4) + "mp4"
+  show_html = ""
+  if (/mp4$/.test(gif) || /webm$/.test(gif) || /gifv$/.test(gif)) {
 
-      show_html =
-          "<video preload=\"auto\" autoplay=\"autoplay\" loop=\"loop\"> \
-          <source src=\"" + gif_mp4 + "\" type=\"video/webm\"> \
-          </video>"
-    }
-    else if (/gif$/.test(gif)) {
-      show_html =
-          "<img src=\"" + gif + "\">"
+    video_gif = gif
+    if (/gifv$/.test(gif)) {
+      video_gif = gif.substring(0, gif.length - 4) + "mp4"
     }
 
-    $("#gif").html(show_html)
+  show_html =
+      "<video \
+        preload=\"auto\" autoplay=\"autoplay\" loop=\"loop\"> \
+        <source \
+          src=\"" + video_gif + "\" type=\"video/webm\" \
+          onerror=\"image_load_error(&quot;" + gif + "&quot;);\"> \
+      </video>"
+  }
+  else if (/gif$/.test(gif)) {
+    show_html =
+        "<img onerror=\"image_load_error(&quot;" + gif + "&quot;);\" src=\"" + gif + "\">"
+  }
+
+  $("#gif").html(show_html)
 }
 
 var gifs=[]
-jQuery.get('https://s3.amazonaws.com/gsh-gifs/reddit_gifs.txt',
+jQuery.get('https://s3.amazonaws.com/gsh-gifs/gifs.txt',
     function(data) {
         gifs = (String(data)).split('\n');
         show_gif()
     });
-
 setInterval(show_gif, 10000)
 
 </script>
