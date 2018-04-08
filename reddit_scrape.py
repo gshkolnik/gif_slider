@@ -1,13 +1,11 @@
+import argparse
 import urllib2
 from bs4 import BeautifulSoup
-
-gif_links_set = set()
-
 
 def scrape_reddit_gif_page(url):
   next_page_url = ''
 
-  hdr = { 'User-Agent' : 'gif bot' }
+  hdr = { 'user-agent' : 'gif bot' }
   req = urllib2.Request(url, headers=hdr)
   page = urllib2.urlopen(req).read()
   soup = BeautifulSoup(page, 'html.parser')
@@ -19,10 +17,11 @@ def scrape_reddit_gif_page(url):
     if not link_href:
       continue
   
-    for ext in [ '.gif', '.gifv', '.ogg', '.mp4', '.webm' ]:
-      if ext in link_href:
-        gif_links_set.add(link_href)
-        continue
+    if is_gif_url(link_href) and link_href not in gif_links_set:
+      print "  " + link_href
+      gif_links_set.add(link_href)
+      print >> file, link_href
+      continue
 
     # find link to next page
     if next_page_url:
@@ -37,13 +36,49 @@ def scrape_reddit_gif_page(url):
     
   return next_page_url
 
-url = 'https://www.reddit.com/r/gifs'
-num_next_pages = 10
-for i in range(0, num_next_pages):
+def is_gif_url(url):
+  for ext in [ '.gif', '.gifv', '.ogg', '.mp4', '.webm' ]:
+    if url.endswith(ext):
+      return True
+
+  return False
+
+def parse_command_line_args():
+  global start_url
+  global num_pages
+  global out_file_name
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--url", help="start page url")
+  parser.add_argument("--pages", type=int, help="number of pages to scrape")
+  parser.add_argument("--output", help="output file name")
+
+  args = parser.parse_args()
+  if args.url:
+    start_url = args.url
+  if args.pages:
+    num_pages = args.pages
+  if args.output:
+    out_file_name = args.output
+
+# =====
+
+start_url = 'https://www.reddit.com/r/gifs'
+num_pages = 50
+out_file_name="reddit_gifs.txt"
+
+gif_links_set = set()
+
+parse_command_line_args()
+print "start URL: " + start_url
+print "pages: " + str(num_pages)
+print "output: " + out_file_name
+
+file = open(out_file_name, "a")
+
+url=start_url
+for i in range(0, num_pages):
     print url
     url = scrape_reddit_gif_page(url)
 
-file = open("reddit_gifs.txt", "w")
-for gif_link in gif_links_set:
-  print >> file, gif_link
 file.close()

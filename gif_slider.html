@@ -7,6 +7,7 @@ html,body{
     margin:0;
     height:100%;
     overflow:hidden;
+    background-color: #000000;
 }
 
 img,video {
@@ -31,8 +32,12 @@ function image_load_error(gif) {
 }
 
 function show_gif() {
-  gif=gifs[Math.floor(Math.random() * (gifs.length - 1))]
-
+    
+  if (iNextGif < 0) {
+    shuffle_gifs()
+    iNextGif = 0;
+  }
+  gif=gifs[iNextGif]
   console.log("showing: " + gif);
 
   show_html = ""
@@ -56,16 +61,36 @@ function show_gif() {
         "<img onerror=\"image_load_error(&quot;" + gif + "&quot;);\" src=\"" + gif + "\">"
   }
 
-  $("#gif").html(show_html)
+  if (show_html != '') {
+    $("#gif").html(show_html)
+  }
+
+  ++iNextGif;
+  if (iNextGif >= gifs.length) {
+    iNextGif = -1;
+  }
 }
 
+var iNextGif=-1
 var gifs=[]
 jQuery.get('https://s3.amazonaws.com/gsh-gifs/gifs.txt',
-    function(data) {
-        gifs = (String(data)).split('\n');
-        show_gif()
-    });
-setInterval(show_gif, 10000)
+  function(data) {
+    gifs = (String(data)).split('\n');
+    show_gif()
+  });
+
+function shuffle_gifs() {
+  console.log("Shuffling gifs")
+
+  for (var i = gifs.length - 1; i > 0; i--) {
+     var j = Math.floor(Math.random() * (i + 1));
+     var temp = gifs[i];
+     gifs[i] = gifs[j];
+     gifs[j] = temp;
+  }
+}
+
+setInterval(show_gif, 8000)
 
 </script>
 </body>
